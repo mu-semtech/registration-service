@@ -7,7 +7,7 @@ Registration microservice using a triple store in the backend
         --link my-triple-store:database \
         -e MU_APPLICATION_GRAPH=http://mu.semte.ch/app \
         -e MU_APPLICATION_SALT=mysupersecretsaltchangeme \
-	-d semtech/mu-registration-service
+        -d semtech/mu-registration-service
         
 The triple store used in the backend is linked to the registration service container as `database`. Make sure the registration service is able to execute update queries against this store.
 
