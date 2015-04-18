@@ -77,7 +77,7 @@ post '/register' do
   query += "                      <#{FOAF.accountName}> \"#{data['nickname'].downcase}\" ;"
   query += "                      <#{MU['account/password']}> \"#{hashed_password}\" ;"
   query += "                      <#{MU['account/salt']}> \"#{account_salt}\" ;"
-  query += "                      <#{MU['account/status']}> \"#{MU['account/status/active']}\" ;"
+  query += "                      <#{MU['account/status']}> <#{MU['account/status/active']}> ;"
   query += "                      <#{DC.created}> \"#{now}\"^^xsd:dateTime ;"
   query += "                      <#{DC.modified}> \"#{now}\"^^xsd:dateTime ."
   query += "   }"
