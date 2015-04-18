@@ -57,6 +57,7 @@ post '/register' do
   account_salt = SecureRandom.hex
   hashed_password = (Digest::MD5.new << data['password'] + settings.salt + account_salt).hexdigest
 
+
   ###
   # Create user and account
   ###
@@ -91,3 +92,75 @@ post '/register' do
   }.to_json
 
 end
+
+
+###
+# POST /unregister
+#
+# Body    { "nickname": "john_doe", "password": "secret" }
+# Returns 200 on successful unregistration
+#         400 if nickname or password is invalid
+###
+post '/unregister' do
+  content_type :json
+
+  request.body.rewind 
+  data = JSON.parse request.body.read
+
+
+  ###
+  # Validate login
+  ###
+
+  query =  " SELECT ?uri ?password ?salt FROM <#{settings.graph}> WHERE {"
+  query += "   ?uri a <#{FOAF.OnlineAccount}> ;"
+  query += "        <#{FOAF.accountName}> '#{data['nickname'].downcase}' ; "
+  query += "        <#{MU['account/password']}> ?password ; "
+  query += "        <#{MU['account/salt']}> ?salt . "
+  query += " }"
+  result = settings.sparql_client.query query
+
+  halt 400 if result.empty? # no account with given nickname
+
+  account = result.first
+  db_password = account[:password].to_s
+  password = Digest::MD5.new << data['password'] + settings.salt + account[:salt].to_s
+
+  halt 400 unless db_password == password.hexdigest # incorrect password given
+
+
+  ### 
+  # Remove old account state
+  ###
+
+  query =  " WITH <#{settings.graph}> "
+  query += " DELETE {"
+  query += "   <#{account[:uri]}> <#{MU['account/status']}> ?status ;"
+  query += "                      <#{DC.modified}> ?modified ."
+  query += " }"
+  query += " WHERE {"
+  query += "   <#{account[:uri]}> <#{MU['account/status']}> ?status ;"
+  query += "                      <#{DC.modified}> ?modified ."
+  query += " }"
+  settings.sparql_client.update(query)
+
+
+  ###
+  # Mark account as inactive
+  ###
+
+  now = DateTime.now.xmlschema
+
+  query =  " INSERT DATA {"
+  query += "   GRAPH <#{settings.graph}> {"
+  query += "     <#{account[:uri]}> <#{MU['account/status']}> <#{MU['account/status/inactive']}> ;"
+  query += "                        <#{DC.modified}> \"#{now}\"^^xsd:dateTime ."
+  query += "   }"
+  query += " }"
+  settings.sparql_client.update(query)
+
+  status 200
+
+end
+
+
