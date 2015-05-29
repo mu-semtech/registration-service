@@ -26,7 +26,7 @@ MU = RDF::Vocabulary.new('http://mu.semte.ch/vocabulary/')
 # Returns 200 on successful registration
 #         400 if body is invalid
 ###
-post '/accounts' do
+post '/accounts/?' do
   content_type :json
 
   request.body.rewind 
@@ -93,7 +93,7 @@ end
 # Returns 200 on successful unregistration
 #         404 if account with given id doesn't exist
 ###
-delete '/accounts/:id' do
+delete '/accounts/:id/?' do
   content_type :json
 
 
@@ -125,7 +125,7 @@ end
 #         400 if account is inactive
 #         400 if nickname is not unique
 ###
-patch '/accounts/:id' do
+patch '/accounts/:id/?' do
   content_type :json
 
   request.body.rewind 
