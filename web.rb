@@ -27,7 +27,7 @@ MU = RDF::Vocabulary.new('http://mu.semte.ch/vocabulary/')
 #         400 if body is invalid
 ###
 post '/accounts/?' do
-  content_type :json
+  content_type 'application/vnd.api+json'
 
   request.body.rewind 
   body = JSON.parse(request.body.read)
@@ -37,11 +37,13 @@ post '/accounts/?' do
   ###
   # Validate request
   ###
+  error('Content-Type must be application/vnd.api+json') if not request.env['CONTENT_TYPE'] == 'application/vnd.api+json'
+  error('Id paramater is not allowed', 403) if not data['id'].nil?
 
   rewrite_url = request.env['HTTP_X_REWRITE_URL']
   error('X-Rewrite-URL header is missing') if rewrite_url.nil?
 
-  error('Incorrect type. Type must be accounts') if data['type'] != 'accounts'
+  error('Incorrect type. Type must be accounts', 409) if data['type'] != 'accounts'
 
   error('Nickname might not be blank') if attributes['nickname'].nil? or attributes['nickname'].empty?
   
@@ -94,7 +96,7 @@ end
 #         404 if account with given id doesn't exist
 ###
 delete '/accounts/:id/?' do
-  content_type :json
+  content_type 'application/vnd.api+json'
 
 
   ###
@@ -126,7 +128,7 @@ end
 #         400 if nickname is not unique
 ###
 patch '/accounts/:id/?' do
-  content_type :json
+  content_type 'application/vnd.api+json'
 
   request.body.rewind 
   body = JSON.parse request.body.read
@@ -137,8 +139,9 @@ patch '/accounts/:id/?' do
   ###
   # Validate body
   ###
-  error('Incorrect type. Type must be accounts') if data['type'] != 'accounts'
-  error('Incorrect id. Id does not match the request URL.') if data['id'] != params['id']
+  error('Content-Type must be application/vnd.api+json') if not request.env['CONTENT_TYPE'] == 'application/vnd.api+json'
+  error('Incorrect type. Type must be accounts', 409) if data['type'] != 'accounts'
+  error('Incorrect id. Id does not match the request URL.', 409) if data['id'] != params['id']
 
   result = select_account_by_id(data['id'])
   halt 404 if result.empty? # no active account with given id
