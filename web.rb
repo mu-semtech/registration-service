@@ -16,7 +16,7 @@ end
 ###
 
 include RDF
-MU = RDF::Vocabulary.new('http://mu.semte.ch/vocabulary/')
+MU = RDF::Vocabulary.new('http://mu.semte.ch/vocabularies/')
 
 
 ###
