@@ -73,15 +73,15 @@ post '/accounts/?' do
 
   status 201
   {
+    links: {
+      self: rewrite_url.chomp('/') + '/' + account_id
+    },
     data: {
       type: 'accounts',
       id: account_id,
       attributes: {
         name: attributes['name'],
         nickname: attributes['nickname'].downcase
-      },
-      links: {
-        self: rewrite_url.chomp('/') + '/' + account_id
       }
    }
   }.to_json
