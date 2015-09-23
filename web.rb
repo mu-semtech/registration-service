@@ -104,7 +104,7 @@ delete '/accounts/:id/?' do
   ###
 
   result = select_account_by_id(params['id'], false)
-  halt 404 if result.empty? # no account with given identifier
+  error("No active account found with id #{params['id']}", 404) if result.empty?
   account = result.first
 
   ### 
@@ -144,7 +144,7 @@ patch '/accounts/:id/?' do
   error('Incorrect id. Id does not match the request URL.', 409) if data['id'] != params['id']
 
   result = select_account_by_id(data['id'])
-  halt 404 if result.empty? # no active account with given id
+  error("No active account found with id #{data['id']}", 404) if result.empty?
   account = result.first
 
   unless attributes['nickname'].nil?
