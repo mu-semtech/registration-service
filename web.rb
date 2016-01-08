@@ -1,22 +1,9 @@
-require 'sinatra'
-require 'sparql/client'
-require 'json'
 require 'digest'
 require 'securerandom'
 
 configure do
   set :salt, ENV['MU_APPLICATION_SALT']
-  set :graph, ENV['MU_APPLICATION_GRAPH']
-  set :sparql_client, SPARQL::Client.new('http://database:8890/sparql') 
 end
-
-
-###
-# Vocabularies
-###
-
-include RDF
-MU = RDF::Vocabulary.new('http://mu.semte.ch/vocabularies/')
 
 
 ###
@@ -37,13 +24,13 @@ post '/accounts/?' do
   ###
   # Validate request
   ###
-  error('Content-Type must be application/vnd.api+json') if not request.env['CONTENT_TYPE'] == 'application/vnd.api+json'
+  validate_json_api_content_type(request)
   error('Id paramater is not allowed', 403) if not data['id'].nil?
 
-  rewrite_url = request.env['HTTP_X_REWRITE_URL']
+  rewrite_url = rewrite_url_header()
   error('X-Rewrite-URL header is missing') if rewrite_url.nil?
 
-  error('Incorrect type. Type must be accounts', 409) if data['type'] != 'accounts'
+  validate_resource_type('accounts', data)
 
   error('Nickname might not be blank') if attributes['nickname'].nil? or attributes['nickname'].empty?
   
@@ -139,8 +126,8 @@ patch '/accounts/:id/?' do
   ###
   # Validate body
   ###
-  error('Content-Type must be application/vnd.api+json') if not request.env['CONTENT_TYPE'] == 'application/vnd.api+json'
-  error('Incorrect type. Type must be accounts', 409) if data['type'] != 'accounts'
+  validate_json_api_content_type(request)
+  validate_resource_type('accounts', data)
   error('Incorrect id. Id does not match the request URL.', 409) if data['id'] != params['id']
 
   result = select_account_by_id(data['id'])
@@ -199,7 +186,7 @@ helpers do
     query += "                      <#{DC.modified}> \"#{now}\"^^xsd:dateTime ."
     query += "   }"
     query += " }"
-    settings.sparql_client.update(query)
+    update(query)
   end
 
   def select_account_by_nickname(nickname)
@@ -207,7 +194,7 @@ helpers do
     query += "   ?uri a <#{FOAF.OnlineAccount}> ;"
     query += "          <#{FOAF.accountName}> '#{nickname.downcase}' . "
     query += " }"
-    settings.sparql_client.query query  
+    query(query)
   end
 
   def select_account_by_id(id, filter_active = true)
@@ -216,7 +203,7 @@ helpers do
     query += "          <#{MU['account/status']}> <#{MU['account/status/active']}> ;" if filter_active
     query += "          <#{MU.uuid}> '#{id}' . "
     query += " }"
-    settings.sparql_client.query query  
+    query(query)
   end
 
   def update_account(account_uri, hashed_password, account_salt, nickname)
@@ -244,7 +231,7 @@ helpers do
     end
     query += "                    <#{DC.modified}> ?modified ."
     query += " }"
-    settings.sparql_client.update(query)
+    update(query)
 
     # Insert new password and salt
     now = DateTime.now.xmlschema
@@ -261,7 +248,7 @@ helpers do
     query += "                      <#{DC.modified}> \"#{now}\"^^xsd:dateTime ."
     query += "   }"
     query += " }"
-    settings.sparql_client.update(query)
+    update(query)
   end
 
   def update_account_status(account_uri, status_uri)
@@ -275,7 +262,7 @@ helpers do
     query += "   <#{account_uri}> <#{MU['account/status']}> ?status ;"
     query += "                    <#{DC.modified}> ?modified ."
     query += " }"
-    settings.sparql_client.update(query)
+    update(query)
 
     # Insert new status
     now = DateTime.now.xmlschema
@@ -285,11 +272,7 @@ helpers do
     query += "                      <#{DC.modified}> \"#{now}\"^^xsd:dateTime ."
     query += "   }"
     query += " }"
-    settings.sparql_client.update(query)
-  end
-
-  def error(title, status = 400)
-    halt status, { errors: [{ title: title }] }.to_json
+    update(query)
   end
 
 end

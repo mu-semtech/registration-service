@@ -1,6 +1,5 @@
-FROM erikap/ruby-sinatra:ruby-2.1-latest
+FROM semtech/mu-sinatra-template:ruby-2.1-latest
 
-ADD . /usr/src/app
+MAINTAINER Erika Pauwels <erika.pauwels@gmail.com>
 
-RUN cd /usr/src/app \
-    && bundle install --without development test
+# ONBUILD of mu-sinatra-template takes care of everything
