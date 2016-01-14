@@ -5,6 +5,11 @@ configure do
   set :salt, ENV['MU_APPLICATION_SALT']
 end
 
+###
+# Vocabularies
+###
+FOAF = RDF::Vocabulary.new('http://xmlns.com/foaf/0.1/')
+DCT = RDF::Vocabulary.new('http://purl.org/dc/terms/')
 
 ###
 # POST /accounts
@@ -174,16 +179,16 @@ helpers do
     query += "                   <#{FOAF.name}> \"#{name}\" ;"
     query += "                   <#{FOAF.account}> <#{account_uri}> ;"
     query += "                   <#{MU.uuid}> \"#{user_id}\" ;"
-    query += "                   <#{DC.created}> \"#{now}\"^^xsd:dateTime ;"
-    query += "                   <#{DC.modified}> \"#{now}\"^^xsd:dateTime ."
+    query += "                   <#{DCT.created}> \"#{now}\"^^xsd:dateTime ;"
+    query += "                   <#{DCT.modified}> \"#{now}\"^^xsd:dateTime ."
     query += "     <#{account_uri}> a <#{FOAF.OnlineAccount}> ;"
     query += "                      <#{FOAF.accountName}> \"#{nickname.downcase}\" ;"
     query += "                      <#{MU.uuid}> \"#{account_id}\" ;"
     query += "                      <#{MU['account/password']}> \"#{hashed_password}\" ;"
     query += "                      <#{MU['account/salt']}> \"#{account_salt}\" ;"
     query += "                      <#{MU['account/status']}> <#{MU['account/status/active']}> ;"
-    query += "                      <#{DC.created}> \"#{now}\"^^xsd:dateTime ;"
-    query += "                      <#{DC.modified}> \"#{now}\"^^xsd:dateTime ."
+    query += "                      <#{DCT.created}> \"#{now}\"^^xsd:dateTime ;"
+    query += "                      <#{DCT.modified}> \"#{now}\"^^xsd:dateTime ."
     query += "   }"
     query += " }"
     update(query)
@@ -218,7 +223,7 @@ helpers do
     unless nickname.nil?
       query += "                  <#{FOAF.accountName}> ?nickname ;"
     end
-    query += "                    <#{DC.modified}> ?modified ."
+    query += "                    <#{DCT.modified}> ?modified ."
     query += " }"
     query += " WHERE {"
     query += "   <#{account_uri}> "
@@ -229,7 +234,7 @@ helpers do
     unless nickname.nil?
       query += "                  <#{FOAF.accountName}> ?nickname ;"
     end
-    query += "                    <#{DC.modified}> ?modified ."
+    query += "                    <#{DCT.modified}> ?modified ."
     query += " }"
     update(query)
 
@@ -245,7 +250,7 @@ helpers do
     unless nickname.nil?
       query += "                    <#{FOAF.accountName}> \"#{nickname.downcase}\" ;"
     end
-    query += "                      <#{DC.modified}> \"#{now}\"^^xsd:dateTime ."
+    query += "                      <#{DCT.modified}> \"#{now}\"^^xsd:dateTime ."
     query += "   }"
     query += " }"
     update(query)
@@ -256,11 +261,11 @@ helpers do
     query =  " WITH <#{settings.graph}> "
     query += " DELETE {"
     query += "   <#{account_uri}> <#{MU['account/status']}> ?status ;"
-    query += "                    <#{DC.modified}> ?modified ."
+    query += "                    <#{DCT.modified}> ?modified ."
     query += " }"
     query += " WHERE {"
     query += "   <#{account_uri}> <#{MU['account/status']}> ?status ;"
-    query += "                    <#{DC.modified}> ?modified ."
+    query += "                    <#{DCT.modified}> ?modified ."
     query += " }"
     update(query)
 
@@ -269,7 +274,7 @@ helpers do
     query =  " INSERT DATA {"
     query += "   GRAPH <#{settings.graph}> {"
     query += "     <#{account_uri}> <#{MU['account/status']}> <#{status_uri}> ;"
-    query += "                      <#{DC.modified}> \"#{now}\"^^xsd:dateTime ."
+    query += "                      <#{DCT.modified}> \"#{now}\"^^xsd:dateTime ."
     query += "   }"
     query += " }"
     update(query)
