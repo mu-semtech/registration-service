@@ -32,7 +32,7 @@ post '/accounts/?' do
   validate_json_api_content_type(request)
   error('Id paramater is not allowed', 403) if not data['id'].nil?
 
-  rewrite_url = rewrite_url_header()
+  rewrite_url = rewrite_url_header(request)
   error('X-Rewrite-URL header is missing') if rewrite_url.nil?
 
   validate_resource_type('accounts', data)
