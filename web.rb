@@ -53,8 +53,8 @@ post '/accounts/?' do
   # Create user and account
   ###
 
-  user_id = SecureRandom.uuid
-  account_id = SecureRandom.uuid
+  user_id = generate_uuid()
+  account_id = generate_uuid()
   create_user_and_account(user_id, attributes['name'], account_id, attributes['nickname'], hashed_password, account_salt)
 
 
