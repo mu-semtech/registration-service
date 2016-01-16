@@ -5,11 +5,6 @@ configure do
   set :salt, ENV['MU_APPLICATION_SALT']
 end
 
-###
-# Vocabularies
-###
-FOAF = RDF::Vocabulary.new('http://xmlns.com/foaf/0.1/')
-DCT = RDF::Vocabulary.new('http://purl.org/dc/terms/')
 
 ###
 # POST /accounts
@@ -175,20 +170,20 @@ helpers do
 
     query =  " INSERT DATA {"
     query += "   GRAPH <#{settings.graph}> {"
-    query += "     <#{user_uri}> a <#{FOAF.Person}> ;"
-    query += "                   <#{FOAF.name}> \"#{name}\" ;"
-    query += "                   <#{FOAF.account}> <#{account_uri}> ;"
+    query += "     <#{user_uri}> a <#{RDF::Vocab::FOAF.Person}> ;"
+    query += "                   <#{RDF::Vocab::FOAF.name}> \"#{name}\" ;"
+    query += "                   <#{RDF::Vocab::FOAF.account}> <#{account_uri}> ;"
     query += "                   <#{MU.uuid}> \"#{user_id}\" ;"
-    query += "                   <#{DCT.created}> \"#{now}\"^^xsd:dateTime ;"
-    query += "                   <#{DCT.modified}> \"#{now}\"^^xsd:dateTime ."
-    query += "     <#{account_uri}> a <#{FOAF.OnlineAccount}> ;"
-    query += "                      <#{FOAF.accountName}> \"#{nickname.downcase}\" ;"
+    query += "                   <#{RDF::Vocab::DC.created}> \"#{now}\"^^xsd:dateTime ;"
+    query += "                   <#{RDF::Vocab::DC.modified}> \"#{now}\"^^xsd:dateTime ."
+    query += "     <#{account_uri}> a <#{RDF::Vocab::FOAF.OnlineAccount}> ;"
+    query += "                      <#{RDF::Vocab::FOAF.accountName}> \"#{nickname.downcase}\" ;"
     query += "                      <#{MU.uuid}> \"#{account_id}\" ;"
     query += "                      <#{MU['account/password']}> \"#{hashed_password}\" ;"
     query += "                      <#{MU['account/salt']}> \"#{account_salt}\" ;"
     query += "                      <#{MU['account/status']}> <#{MU['account/status/active']}> ;"
-    query += "                      <#{DCT.created}> \"#{now}\"^^xsd:dateTime ;"
-    query += "                      <#{DCT.modified}> \"#{now}\"^^xsd:dateTime ."
+    query += "                      <#{RDF::Vocab::DC.created}> \"#{now}\"^^xsd:dateTime ;"
+    query += "                      <#{RDF::Vocab::DC.modified}> \"#{now}\"^^xsd:dateTime ."
     query += "   }"
     query += " }"
     update(query)
@@ -196,15 +191,15 @@ helpers do
 
   def select_account_by_nickname(nickname)
     query =  " SELECT ?uri FROM <#{settings.graph}> WHERE {"
-    query += "   ?uri a <#{FOAF.OnlineAccount}> ;"
-    query += "          <#{FOAF.accountName}> '#{nickname.downcase}' . "
+    query += "   ?uri a <#{RDF::Vocab::FOAF.OnlineAccount}> ;"
+    query += "          <#{RDF::Vocab::FOAF.accountName}> '#{nickname.downcase}' . "
     query += " }"
     query(query)
   end
 
   def select_account_by_id(id, filter_active = true)
     query =  " SELECT ?uri FROM <#{settings.graph}> WHERE {"
-    query += "   ?uri a <#{FOAF.OnlineAccount}> ;"
+    query += "   ?uri a <#{RDF::Vocab::FOAF.OnlineAccount}> ;"
     query += "          <#{MU['account/status']}> <#{MU['account/status/active']}> ;" if filter_active
     query += "          <#{MU.uuid}> '#{id}' . "
     query += " }"
@@ -221,9 +216,9 @@ helpers do
       query += "                  <#{MU['account/salt']}> ?salt ;"
     end
     unless nickname.nil?
-      query += "                  <#{FOAF.accountName}> ?nickname ;"
+      query += "                  <#{RDF::Vocab::FOAF.accountName}> ?nickname ;"
     end
-    query += "                    <#{DCT.modified}> ?modified ."
+    query += "                    <#{RDF::Vocab::DC.modified}> ?modified ."
     query += " }"
     query += " WHERE {"
     query += "   <#{account_uri}> "
@@ -232,9 +227,9 @@ helpers do
       query += "                  <#{MU['account/salt']}> ?salt ;"
     end
     unless nickname.nil?
-      query += "                  <#{FOAF.accountName}> ?nickname ;"
+      query += "                  <#{RDF::Vocab::FOAF.accountName}> ?nickname ;"
     end
-    query += "                    <#{DCT.modified}> ?modified ."
+    query += "                    <#{RDF::Vocab::DC.modified}> ?modified ."
     query += " }"
     update(query)
 
@@ -248,9 +243,9 @@ helpers do
       query += "                    <#{MU['account/salt']}> \"#{account_salt}\" ;"
     end
     unless nickname.nil?
-      query += "                    <#{FOAF.accountName}> \"#{nickname.downcase}\" ;"
+      query += "                    <#{RDF::Vocab::FOAF.accountName}> \"#{nickname.downcase}\" ;"
     end
-    query += "                      <#{DCT.modified}> \"#{now}\"^^xsd:dateTime ."
+    query += "                      <#{RDF::Vocab::DC.modified}> \"#{now}\"^^xsd:dateTime ."
     query += "   }"
     query += " }"
     update(query)
@@ -261,11 +256,11 @@ helpers do
     query =  " WITH <#{settings.graph}> "
     query += " DELETE {"
     query += "   <#{account_uri}> <#{MU['account/status']}> ?status ;"
-    query += "                    <#{DCT.modified}> ?modified ."
+    query += "                    <#{RDF::Vocab::DC.modified}> ?modified ."
     query += " }"
     query += " WHERE {"
     query += "   <#{account_uri}> <#{MU['account/status']}> ?status ;"
-    query += "                    <#{DCT.modified}> ?modified ."
+    query += "                    <#{RDF::Vocab::DC.modified}> ?modified ."
     query += " }"
     update(query)
 
@@ -274,7 +269,7 @@ helpers do
     query =  " INSERT DATA {"
     query += "   GRAPH <#{settings.graph}> {"
     query += "     <#{account_uri}> <#{MU['account/status']}> <#{status_uri}> ;"
-    query += "                      <#{DCT.modified}> \"#{now}\"^^xsd:dateTime ."
+    query += "                      <#{RDF::Vocab::DC.modified}> \"#{now}\"^^xsd:dateTime ."
     query += "   }"
     query += " }"
     update(query)
