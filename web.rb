@@ -5,6 +5,12 @@ configure do
   set :salt, ENV['MU_APPLICATION_SALT']
 end
 
+###
+# Vocabularies
+###
+
+MU_ACCOUNT = RDF::Vocabulary.new(MU.to_uri.to_s + 'account/')
+
 
 ###
 # POST /accounts
@@ -98,7 +104,7 @@ delete '/accounts/:id/?' do
   # Update account status
   ###
 
-  update_account_status(account[:uri], MU['account/status/inactive'])
+  update_account_status(account[:uri], MU_ACCOUNT['status/inactive'])
 
   status 204
 
@@ -173,15 +179,15 @@ helpers do
     query += "     <#{user_uri}> a <#{RDF::Vocab::FOAF.Person}> ;"
     query += "                   <#{RDF::Vocab::FOAF.name}> \"#{name}\" ;"
     query += "                   <#{RDF::Vocab::FOAF.account}> <#{account_uri}> ;"
-    query += "                   <#{MU.uuid}> \"#{user_id}\" ;"
+    query += "                   <#{MU_CORE.uuid}> \"#{user_id}\" ;"
     query += "                   <#{RDF::Vocab::DC.created}> \"#{now}\"^^xsd:dateTime ;"
     query += "                   <#{RDF::Vocab::DC.modified}> \"#{now}\"^^xsd:dateTime ."
     query += "     <#{account_uri}> a <#{RDF::Vocab::FOAF.OnlineAccount}> ;"
     query += "                      <#{RDF::Vocab::FOAF.accountName}> \"#{nickname.downcase}\" ;"
-    query += "                      <#{MU.uuid}> \"#{account_id}\" ;"
-    query += "                      <#{MU['account/password']}> \"#{hashed_password}\" ;"
-    query += "                      <#{MU['account/salt']}> \"#{account_salt}\" ;"
-    query += "                      <#{MU['account/status']}> <#{MU['account/status/active']}> ;"
+    query += "                      <#{MU_CORE.uuid}> \"#{account_id}\" ;"
+    query += "                      <#{MU_ACCOUNT.password}> \"#{hashed_password}\" ;"
+    query += "                      <#{MU_ACCOUNT.salt}> \"#{account_salt}\" ;"
+    query += "                      <#{MU_ACCOUNT.status}> <#{MU_ACCOUNT['status/active']}> ;"
     query += "                      <#{RDF::Vocab::DC.created}> \"#{now}\"^^xsd:dateTime ;"
     query += "                      <#{RDF::Vocab::DC.modified}> \"#{now}\"^^xsd:dateTime ."
     query += "   }"
@@ -200,8 +206,8 @@ helpers do
   def select_account_by_id(id, filter_active = true)
     query =  " SELECT ?uri FROM <#{settings.graph}> WHERE {"
     query += "   ?uri a <#{RDF::Vocab::FOAF.OnlineAccount}> ;"
-    query += "          <#{MU['account/status']}> <#{MU['account/status/active']}> ;" if filter_active
-    query += "          <#{MU.uuid}> '#{id}' . "
+    query += "          <#{MU_ACCOUNT.status}> <#{MU_ACCOUNT['status/active']}> ;" if filter_active
+    query += "          <#{MU_CORE.uuid}> '#{id}' . "
     query += " }"
     query(query)
   end
@@ -212,8 +218,8 @@ helpers do
     query += " DELETE {"
     query += "   <#{account_uri}> "
     unless hashed_password.nil? or account_salt.nil?
-      query += "                  <#{MU['account/password']}> ?password ;"
-      query += "                  <#{MU['account/salt']}> ?salt ;"
+      query += "                  <#{MU_ACCOUNT.password}> ?password ;"
+      query += "                  <#{MU_ACCOUNT.salt}> ?salt ;"
     end
     unless nickname.nil?
       query += "                  <#{RDF::Vocab::FOAF.accountName}> ?nickname ;"
@@ -223,8 +229,8 @@ helpers do
     query += " WHERE {"
     query += "   <#{account_uri}> "
     unless hashed_password.nil? or account_salt.nil?
-      query += "                  <#{MU['account/password']}> ?password ;"
-      query += "                  <#{MU['account/salt']}> ?salt ;"
+      query += "                  <#{MU_ACCOUNT.password}> ?password ;"
+      query += "                  <#{MU_ACCOUNT.salt}> ?salt ;"
     end
     unless nickname.nil?
       query += "                  <#{RDF::Vocab::FOAF.accountName}> ?nickname ;"
@@ -239,8 +245,8 @@ helpers do
     query += "   GRAPH <#{settings.graph}> {"
     query += "     <#{account_uri}> "
     unless hashed_password.nil? or account_salt.nil?
-      query += "                    <#{MU['account/password']}> \"#{hashed_password}\" ;"
-      query += "                    <#{MU['account/salt']}> \"#{account_salt}\" ;"
+      query += "                    <#{MU_ACCOUNT.password}> \"#{hashed_password}\" ;"
+      query += "                    <#{MU_ACCOUNT.salt}> \"#{account_salt}\" ;"
     end
     unless nickname.nil?
       query += "                    <#{RDF::Vocab::FOAF.accountName}> \"#{nickname.downcase}\" ;"
@@ -255,11 +261,11 @@ helpers do
     # Delete old status
     query =  " WITH <#{settings.graph}> "
     query += " DELETE {"
-    query += "   <#{account_uri}> <#{MU['account/status']}> ?status ;"
+    query += "   <#{account_uri}> <#{MU_ACCOUNT.status}> ?status ;"
     query += "                    <#{RDF::Vocab::DC.modified}> ?modified ."
     query += " }"
     query += " WHERE {"
-    query += "   <#{account_uri}> <#{MU['account/status']}> ?status ;"
+    query += "   <#{account_uri}> <#{MU_ACCOUNT.status}> ?status ;"
     query += "                    <#{RDF::Vocab::DC.modified}> ?modified ."
     query += " }"
     update(query)
@@ -268,7 +274,7 @@ helpers do
     now = DateTime.now.xmlschema
     query =  " INSERT DATA {"
     query += "   GRAPH <#{settings.graph}> {"
-    query += "     <#{account_uri}> <#{MU['account/status']}> <#{status_uri}> ;"
+    query += "     <#{account_uri}> <#{MU_ACCOUNT.status}> <#{status_uri}> ;"
     query += "                      <#{RDF::Vocab::DC.modified}> \"#{now}\"^^xsd:dateTime ."
     query += "   }"
     query += " }"
