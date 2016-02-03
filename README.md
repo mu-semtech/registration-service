@@ -15,3 +15,4 @@ The `MU_APPLICATION_GRAPH` environment variable specifies the graph in the tripl
 
 The `MU_APPLICATION_SALT` environment variable specifies (part of) the salt used to hash the user passwords. Configure the [login microservice](https://github.com/mu-semtech/login-service) with the same salt.
 
+The `MU_AUTO_LOGIN_ON_REGISTRATION` environment variable (default: `false`) specifies whether the new user should be logged in automatically at the end of the registration request.

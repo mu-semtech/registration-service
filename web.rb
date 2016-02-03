@@ -3,6 +3,7 @@ require 'securerandom'
 
 configure do
   set :salt, ENV['MU_APPLICATION_SALT']
+  set :auto_login_on_registration, ENV['MU_AUTO_LOGIN_ON_REGISTRATION'] == 'true'
 end
 
 ###
@@ -10,6 +11,7 @@ end
 ###
 
 MU_ACCOUNT = RDF::Vocabulary.new(MU.to_uri.to_s + 'account/')
+MU_SESSION = RDF::Vocabulary.new(MU.to_uri.to_s + 'session/')
 
 
 ###
@@ -33,6 +35,9 @@ post '/accounts/?' do
   validate_json_api_content_type(request)
   error('Id paramater is not allowed', 403) if not data['id'].nil?
 
+  session_uri = session_id_header(request)
+  error('Session header is missing') if session_uri.nil?
+  
   rewrite_url = rewrite_url_header(request)
   error('X-Rewrite-URL header is missing') if rewrite_url.nil?
 
@@ -63,6 +68,21 @@ post '/accounts/?' do
   account_id = generate_uuid()
   create_user_and_account(user_id, attributes['name'], account_id, attributes['nickname'], hashed_password, account_salt)
 
+
+  if settings.auto_login_on_registration 
+    ###
+    # Remove old sessions
+    ###
+    remove_old_sessions(session_uri)
+  
+    ###
+    # Insert new session for new account
+    ###
+    session_id = generate_uuid()
+    account_uri = create_account_uri(account_id)
+    insert_new_session_for_account(account_uri, session_uri, session_id)
+    update_modified(session_uri)
+  end
 
   status 201
   {
@@ -169,9 +189,17 @@ end
 
 helpers do
 
+  def create_user_uri(user_id)
+    settings.graph + "/users/" + user_id 
+  end
+
+  def create_account_uri(account_id)
+    settings.graph + "/account/" + account_id 
+  end
+
   def create_user_and_account(user_id, name, account_id, nickname, hashed_password, account_salt)
-    user_uri = settings.graph + "/users/" + user_id 
-    account_uri = settings.graph + "/accounts/" + account_id 
+    user_uri = create_user_uri(user_id)
+    account_uri = create_account_uri(account_id)
     now = DateTime.now.xmlschema
 
     query =  " INSERT DATA {"
@@ -195,6 +223,19 @@ helpers do
     update(query)
   end
 
+  def remove_old_sessions(session)
+    query =  " WITH <#{settings.graph}> "
+    query += " DELETE {"
+    query += "   <#{session}> <#{MU_SESSION.account}> ?account ;"
+    query += "                <#{MU_CORE.uuid}> ?id . "
+    query += " }"
+    query += " WHERE {"
+    query += "   <#{session}> <#{MU_SESSION.account}> ?account ;"
+    query += "                <#{MU_CORE.uuid}> ?id . "
+    query += " }"
+    update(query)
+  end
+
   def select_account_by_nickname(nickname)
     query =  " SELECT ?uri FROM <#{settings.graph}> WHERE {"
     query += "   ?uri a <#{RDF::Vocab::FOAF.OnlineAccount}> ;"
@@ -210,6 +251,16 @@ helpers do
     query += "          <#{MU_CORE.uuid}> '#{id}' . "
     query += " }"
     query(query)
+  end
+
+  def insert_new_session_for_account(account, session_uri, session_id)
+    query =  " INSERT DATA {"
+    query += "   GRAPH <#{settings.graph}> {"
+    query += "     <#{session_uri}> <#{MU_SESSION.account}> <#{account}> ;"
+    query += "                      <#{MU_CORE.uuid}> \"#{session_id}\" ."
+    query += "   }"
+    query += " }"
+    update(query)
   end
 
   def update_account(account_uri, hashed_password, account_salt, nickname)
