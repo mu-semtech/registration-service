@@ -17,7 +17,7 @@ MU_SESSION = RDF::Vocabulary.new(MU.to_uri.to_s + 'session/')
 ###
 # POST /accounts
 #
-# Body    {"data":{"type":"accounts","attributes":{"name":"John Doe","nickname":"john_doe","password":"secret","passwordConfirmation":"secret"}}}
+# Body    {"data":{"type":"accounts","attributes":{"name":"John Doe","nickname":"john_doe","password":"secret","password-confirmation":"secret"}}}
 # Returns 200 on successful registration
 #         400 if body is invalid
 ###
@@ -49,7 +49,7 @@ post '/accounts/?' do
   error('Nickname already exists') if not result.empty?
 
   error('Password might not be blank') if attributes['password'].nil? or attributes['password'].empty?
-  error('Password and password confirmation do not match') if attributes['password'] != attributes['passwordConfirmation']
+  error('Password and password confirmation do not match') if attributes['password'] != attributes['password-confirmation']
 
 
   ###
