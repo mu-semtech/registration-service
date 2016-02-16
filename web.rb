@@ -1,4 +1,4 @@
-require 'digest'
+require 'bcrypt'
 require 'securerandom'
 
 configure do
@@ -57,7 +57,7 @@ post '/accounts/?' do
   ###
 
   account_salt = SecureRandom.hex
-  hashed_password = (Digest::MD5.new << attributes['password'] + settings.salt + account_salt).hexdigest
+  hashed_password = BCrypt::Password.create attributes['password'] + settings.salt + account_salt
 
 
   ###
@@ -174,7 +174,7 @@ patch '/accounts/:id/?' do
 
   unless attributes['password'].nil?
     account_salt = SecureRandom.hex
-    hashed_password = (Digest::MD5.new << attributes['password'] + settings.salt + account_salt).hexdigest
+    hashed_password = BCrypt::Password.create attributes['password'] + settings.salt + account_salt
     update_account(account[:uri], hashed_password, account_salt, attributes['nickname'])
   end
 
