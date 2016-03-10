@@ -1,4 +1,4 @@
-FROM semtech/mu-sinatra-template:ruby-2.1-latest
+FROM semtech/mu-sinatra-template:1.0.0-ruby2.1
 
 MAINTAINER Erika Pauwels <erika.pauwels@gmail.com>
 
