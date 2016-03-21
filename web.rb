@@ -1,6 +1,7 @@
 require 'bcrypt'
 require 'securerandom'
 require_relative 'registration_service/helpers.rb'
+require_relative 'registration_service/sparql_queries.rb'
 
 configure do
   set :salt, ENV['MU_APPLICATION_SALT']
@@ -204,3 +205,4 @@ end
 ###
 
 helpers RegistrationService::Helpers
+helpers RegistrationService::SparqlQueries
