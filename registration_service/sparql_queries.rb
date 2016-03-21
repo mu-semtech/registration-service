@@ -66,6 +66,15 @@ module RegistrationService
       query(query)
     end
 
+    def select_salted_password_and_salt(account_uri)
+      query =  " SELECT ?password ?salt FROM <#{settings.graph}> WHERE {"
+      query += "   <#{account_uri}> a <#{RDF::Vocab::FOAF.OnlineAccount}> ; "
+      query += "        <#{MU_ACCOUNT.password}> ?password ; "
+      query += "        <#{MU_ACCOUNT.salt}> ?salt . "
+      query += " }"
+      query(query)
+    end    
+
     def insert_new_session_for_account(account, session_uri, session_id)
       query =  " INSERT DATA {"
       query += "   GRAPH <#{settings.graph}> {"
@@ -119,6 +128,10 @@ module RegistrationService
       query += "   }"
       query += " }"
       update(query)
+    end
+
+    def update_password(account_uri, hashed_password, account_salt)
+      update_account(account_uri, hashed_password, account_salt, nil)
     end
 
     def update_account_status(account_uri, status_uri)

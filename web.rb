@@ -138,8 +138,10 @@ end
 ###
 # DELETE /accounts/:id
 #
+# This function will be typically used by a system administrator
+# 
 # Returns 204 on successful unregistration
-#         404 if active account with given id doesn't exist
+#         404 if account with given id doesn't exist
 ###
 delete '/accounts/:id/?' do
   content_type 'application/vnd.api+json'
@@ -152,7 +154,9 @@ end
 ###
 # PATCH /accounts/:id
 #
-# Body    {"data":{"type":"accounts","id":"1","attributes":{"nickname":"john_doe","password":"newsecret"}}}
+# This function will be typically used by a system administrator
+#
+# Body    {"data":{"type":"accounts","id":"1","attributes":{"nickname":"john_doe", "password":"anotherSecret"}}}
 # Returns 200 on successful update
 #         400 if account is inactive
 #         400 if nickname is not unique
@@ -179,7 +183,7 @@ patch '/accounts/:id/?' do
 
   unless attributes['nickname'].nil?
     result = select_account_by_nickname(attributes['nickname']) 
-    error('Nickname already exists') if not result.empty? and result.first[:uri] != account[:uri] # another account with the given nickname already exists
+    error('Nickname already exists') if not result.empty? and result.first[:uri] != account[:uri]
   end
 
   error('User name cannot be updated') if not attributes['name'].nil?
@@ -199,6 +203,79 @@ patch '/accounts/:id/?' do
   status 204
 end
 
+
+###
+# PATCH /accounts/current/changePassword
+#
+# Body    {"data":{"type":"accounts","id":"current","attributes":{"old-password":"secret", "new-password":"anotherSecret", "new-password-confirmation:"anotherSecret"}}}
+# Returns 200 on successful update
+#         404 if session header is missing or session header is invalid
+#         400 if old password is incorrect
+#         400 if new password and new password confirmation do not match
+#         400 if account is inactive
+###
+patch '/accounts/current/changePassword/?' do
+  content_type 'application/vnd.api+json'
+
+  ###
+  # Validate session
+  ###
+
+  session_uri = session_id_header(request)
+  error('Session header is missing') if session_uri.nil?
+
+  
+  ###
+  # Validate body
+  ###
+  request.body.rewind 
+  body = JSON.parse request.body.read
+  data = body['data']
+  attributes = data['attributes']
+
+  validate_json_api_content_type(request)
+  validate_resource_type('accounts', data)
+
+  error('Password might not be blank') if attributes['new-password'].nil? or attributes['new-password'].empty?
+  error('Password and password confirmation do not match') if attributes['new-password'] != attributes['new-password-confirmation']
+  
+  ###
+  # Get account
+  ### 
+
+  result = select_account_id_by_session(session_uri)
+  error('Invalid session') if result.empty?
+  account_id = result.first[:id].to_s
+
+  result = select_account_by_id(account_id)
+  error("No active account found with id #{account_id}", 404) if result.empty?
+  account = result.first
+
+  
+  ###
+  # Validate old password
+  ###
+
+  result = select_salted_password_and_salt(account[:uri])
+  error("No password and salt found for account #{account[:uri]}.") if result.empty?
+ 
+  password_and_salt = result.first
+  db_password = BCrypt::Password.new password_and_salt[:password].to_s
+  password = attributes['old-password'] + settings.salt + password_and_salt[:salt].to_s
+  error('Incorrect old password given.') unless db_password == password
+
+
+  ###
+  # Hash and store new user password with custom salt
+  ###
+  account_salt = SecureRandom.hex
+  hashed_password = BCrypt::Password.create attributes['new-password'] + settings.salt + account_salt
+  update_password(account[:uri], hashed_password, account_salt)
+  
+
+  status 204
+  
+end
 
 ###
 # Helpers
