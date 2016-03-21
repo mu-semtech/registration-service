@@ -9,6 +9,24 @@ module RegistrationService
       settings.graph + "/account/" + account_id 
     end
 
+    def delete_account(account_id)
+      ###
+      # Validate account id
+      ###
+      
+      result = select_account_by_id(account_id, false)
+      error("No active account found with id #{params['id']}", 404) if result.empty?
+      account = result.first
+
+      ### 
+      # Update account status
+      ###
+
+      update_account_status(account[:uri], MU_ACCOUNT['status/inactive'])
+
+      status 204
+    end
+
     def create_user_and_account(user_id, name, account_id, nickname, hashed_password, account_salt)
       user_uri = create_user_uri(user_id)
       account_uri = create_account_uri(account_id)
@@ -61,6 +79,15 @@ module RegistrationService
       query += "   ?uri a <#{RDF::Vocab::FOAF.OnlineAccount}> ;"
       query += "          <#{MU_ACCOUNT.status}> <#{MU_ACCOUNT['status/active']}> ;" if filter_active
       query += "          <#{MU_CORE.uuid}> '#{id}' . "
+      query += " }"
+      query(query)
+    end
+
+    def select_account_id_by_session(session)
+      query =  " SELECT ?id FROM <#{settings.graph}> WHERE {"
+      query += "   <#{session}> <#{MU_SESSION.account}> ?account ."
+      query += "   ?account a <#{RDF::Vocab::FOAF.OnlineAccount}> ."
+      query += "            <#{MU_CORE.uuid}> ?id . "
       query += " }"
       query(query)
     end

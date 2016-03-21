@@ -104,31 +104,46 @@ end
 
 
 ###
+# DELETE /accounts/current
+#
+# Returns 204 on successful unregistration of the current account
+#         404 if session header is missing or session header is invalid
+###
+delete '/accounts/current/?' do
+  content_type 'application/vnd.api+json'
+
+  ###
+  # Validate session
+  ###
+
+  session_uri = session_id_header(request)
+  error('Session header is missing') if session_uri.nil?
+
+
+  ###
+  # Get account
+  ### 
+
+  result = select_account_id_by_session(session_uri)
+  error('Invalid session') if result.empty?
+  account_id = result.first[:id].to_s
+
+  delete_account(account_id)
+
+end
+
+
+
+###
 # DELETE /accounts/:id
 #
-# Returns 200 on successful unregistration
-#         404 if account with given id doesn't exist
+# Returns 204 on successful unregistration
+#         404 if active account with given id doesn't exist
 ###
 delete '/accounts/:id/?' do
   content_type 'application/vnd.api+json'
-
-
-  ###
-  # Validate account id
-  ###
-
-  result = select_account_by_id(params['id'], false)
-  error("No active account found with id #{params['id']}", 404) if result.empty?
-  account = result.first
-
-  ### 
-  # Update account status
-  ###
-
-  update_account_status(account[:uri], MU_ACCOUNT['status/inactive'])
-
-  status 204
-
+  
+  delete_account(params['id'])
 end
 
 
