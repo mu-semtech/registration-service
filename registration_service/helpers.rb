@@ -2,11 +2,11 @@ module RegistrationService
   module Helpers
 
     def create_user_uri(user_id)
-      settings.graph + "/users/" + user_id 
+      REGISTRATION_SERVICE_RESOURCE_BASE + "users/" + user_id 
     end
 
     def create_account_uri(account_id)
-      settings.graph + "/account/" + account_id 
+      REGISTRATION_SERVICE_RESOURCE_BASE + "accounts/" + account_id 
     end
 
     def delete_account(account_id)
