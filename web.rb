@@ -21,8 +21,10 @@ REGISTRATION_SERVICE_RESOURCE_BASE = SERVICE_RESOURCE_BASE + 'registration-servi
 # POST /accounts
 #
 # Body    {"data":{"type":"accounts","attributes":{"name":"John Doe","nickname":"john_doe","password":"secret","password-confirmation":"secret"}}}
-# Returns 200 on successful registration
+# Returns 201 on successful registration
+#         400 if the session header is missing
 #         400 if body is invalid
+#         400 if the given nickname already exists
 ###
 post '/accounts/?' do
   content_type 'application/vnd.api+json'
@@ -109,7 +111,7 @@ end
 # DELETE /accounts/current
 #
 # Returns 204 on successful unregistration of the current account
-#         404 if session header is missing or session header is invalid
+#         400 if session header is missing or session header is invalid
 ###
 delete '/accounts/current/?' do
   content_type 'application/vnd.api+json'
@@ -158,9 +160,10 @@ end
 # This function will be typically used by a system administrator
 #
 # Body    {"data":{"type":"accounts","id":"1","attributes":{"nickname":"john_doe", "password":"anotherSecret"}}}
-# Returns 200 on successful update
+# Returns 204 on successful update
 #         400 if account is inactive
 #         400 if nickname is not unique
+#         404 if account with given id doesn't exist
 ###
 patch '/accounts/:id/?' do
   content_type 'application/vnd.api+json'
@@ -210,7 +213,7 @@ end
 #
 # Body    {"data":{"type":"accounts","id":"current","attributes":{"old-password":"secret", "new-password":"anotherSecret", "new-password-confirmation:"anotherSecret"}}}
 # Returns 200 on successful update
-#         404 if session header is missing or session header is invalid
+#         400 if session header is missing or session header is invalid
 #         400 if old password is incorrect
 #         400 if new password and new password confirmation do not match
 #         400 if account is inactive
