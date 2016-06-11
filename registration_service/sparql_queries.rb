@@ -4,24 +4,24 @@ module RegistrationService
     def create_user_and_account(user_id, name, account_id, nickname, hashed_password, account_salt)
       user_uri = create_user_uri(user_id)
       account_uri = create_account_uri(account_id)
-      now = DateTime.now.xmlschema
+      now = DateTime.now
 
       query =  " INSERT DATA {"
       query += "   GRAPH <#{settings.graph}> {"
       query += "     <#{user_uri}> a <#{RDF::Vocab::FOAF.Person}> ;"
-      query += "                   <#{RDF::Vocab::FOAF.name}> \"#{name}\" ;"
+      query += "                   <#{RDF::Vocab::FOAF.name}> #{name.sparql_escape} ;"
       query += "                   <#{RDF::Vocab::FOAF.account}> <#{account_uri}> ;"
-      query += "                   <#{MU_CORE.uuid}> \"#{user_id}\" ;"
-      query += "                   <#{RDF::Vocab::DC.created}> \"#{now}\"^^xsd:dateTime ;"
-      query += "                   <#{RDF::Vocab::DC.modified}> \"#{now}\"^^xsd:dateTime ."
+      query += "                   <#{MU_CORE.uuid}> #{user_id.sparql_escape} ;"
+      query += "                   <#{RDF::Vocab::DC.created}> #{now.sparql_escape} ;"
+      query += "                   <#{RDF::Vocab::DC.modified}> #{now.sparql_escape} ."
       query += "     <#{account_uri}> a <#{RDF::Vocab::FOAF.OnlineAccount}> ;"
-      query += "                      <#{RDF::Vocab::FOAF.accountName}> \"#{nickname.downcase}\" ;"
-      query += "                      <#{MU_CORE.uuid}> \"#{account_id}\" ;"
-      query += "                      <#{MU_ACCOUNT.password}> \"#{hashed_password}\" ;"
-      query += "                      <#{MU_ACCOUNT.salt}> \"#{account_salt}\" ;"
+      query += "                      <#{RDF::Vocab::FOAF.accountName}> #{nickname.downcase.sparql_escape} ;"
+      query += "                      <#{MU_CORE.uuid}> #{account_id.sparql_escape} ;"
+      query += "                      <#{MU_ACCOUNT.password}> #{hashed_password.sparql_escape} ;"
+      query += "                      <#{MU_ACCOUNT.salt}> #{account_salt.sparql_escape} ;"
       query += "                      <#{MU_ACCOUNT.status}> <#{MU_ACCOUNT['status/active']}> ;"
-      query += "                      <#{RDF::Vocab::DC.created}> \"#{now}\"^^xsd:dateTime ;"
-      query += "                      <#{RDF::Vocab::DC.modified}> \"#{now}\"^^xsd:dateTime ."
+      query += "                      <#{RDF::Vocab::DC.created}> #{now.sparql_escape} ;"
+      query += "                      <#{RDF::Vocab::DC.modified}> #{now.sparql_escape} ."
       query += "   }"
       query += " }"
       update(query)
@@ -43,7 +43,7 @@ module RegistrationService
     def select_account_by_nickname(nickname)
       query =  " SELECT ?uri FROM <#{settings.graph}> WHERE {"
       query += "   ?uri a <#{RDF::Vocab::FOAF.OnlineAccount}> ;"
-      query += "          <#{RDF::Vocab::FOAF.accountName}> '#{nickname.downcase}' . "
+      query += "          <#{RDF::Vocab::FOAF.accountName}> #{nickname.downcase.sparql_escape} . "
       query += " }"
       query(query)
     end
@@ -52,7 +52,7 @@ module RegistrationService
       query =  " SELECT ?uri FROM <#{settings.graph}> WHERE {"
       query += "   ?uri a <#{RDF::Vocab::FOAF.OnlineAccount}> ;"
       query += "          <#{MU_ACCOUNT.status}> <#{MU_ACCOUNT['status/active']}> ;" if filter_active
-      query += "          <#{MU_CORE.uuid}> '#{id}' . "
+      query += "          <#{MU_CORE.uuid}> #{id.sparql_escape} . "
       query += " }"
       query(query)
     end
@@ -79,7 +79,7 @@ module RegistrationService
       query =  " INSERT DATA {"
       query += "   GRAPH <#{settings.graph}> {"
       query += "     <#{session_uri}> <#{MU_SESSION.account}> <#{account}> ;"
-      query += "                      <#{MU_CORE.uuid}> \"#{session_id}\" ."
+      query += "                      <#{MU_CORE.uuid}> #{session_id.sparql_escape} ."
       query += "   }"
       query += " }"
       update(query)
@@ -113,18 +113,18 @@ module RegistrationService
       update(query)
 
       # Insert new password and salt
-      now = DateTime.now.xmlschema
+      now = DateTime.now
       query =  " INSERT DATA {"
       query += "   GRAPH <#{settings.graph}> {"
       query += "     <#{account_uri}> "
       unless hashed_password.nil? or account_salt.nil?
-        query += "                    <#{MU_ACCOUNT.password}> \"#{hashed_password}\" ;"
-        query += "                    <#{MU_ACCOUNT.salt}> \"#{account_salt}\" ;"
+        query += "                    <#{MU_ACCOUNT.password}> #{hashed_password.sparql_escape} ;"
+        query += "                    <#{MU_ACCOUNT.salt}> #{account_salt.sparql_escape} ;"
       end
       unless nickname.nil?
-        query += "                    <#{RDF::Vocab::FOAF.accountName}> \"#{nickname.downcase}\" ;"
+        query += "                    <#{RDF::Vocab::FOAF.accountName}> #{nickname.downcase.sparql_escape} ;"
       end
-      query += "                      <#{RDF::Vocab::DC.modified}> \"#{now}\"^^xsd:dateTime ."
+      query += "                      <#{RDF::Vocab::DC.modified}> #{now.sparql_escape} ."
       query += "   }"
       query += " }"
       update(query)
@@ -148,11 +148,11 @@ module RegistrationService
       update(query)
 
       # Insert new status
-      now = DateTime.now.xmlschema
+      now = DateTime.now
       query =  " INSERT DATA {"
       query += "   GRAPH <#{settings.graph}> {"
       query += "     <#{account_uri}> <#{MU_ACCOUNT.status}> <#{status_uri}> ;"
-      query += "                      <#{RDF::Vocab::DC.modified}> \"#{now}\"^^xsd:dateTime ."
+      query += "                      <#{RDF::Vocab::DC.modified}> #{now.sparql_escape} ."
       query += "   }"
       query += " }"
       update(query)
