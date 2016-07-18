@@ -63,7 +63,7 @@ On successful registration with the newly created account in the response body:
   "data": {
     "type": "accounts",
     "id": "f6419af0-c90f-465f-9333-e993c43e6cf2",
-    attributes: {
+    "attributes": {
       "name": "John Doe",
       "nickname": "john_doe"
     }
@@ -130,7 +130,7 @@ Update the account details of the account with the given id.
   "data": {
     "type": "accounts",
     "id": "f6419af0-c90f-465f-9333-e993c43e6cf2",
-    attributes: {
+    "attributes": {
       "nickname": "john_doe",
       "password": "anotherSecret"
     }
