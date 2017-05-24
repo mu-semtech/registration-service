@@ -28,9 +28,7 @@ REGISTRATION_SERVICE_RESOURCE_BASE = SERVICE_RESOURCE_BASE + 'registration-servi
 post '/accounts/?' do
   content_type 'application/vnd.api+json'
 
-  request.body.rewind 
-  body = JSON.parse(request.body.read)
-  data = body['data']
+  data = @json_body['data']
   attributes = data['attributes']
 
   ###
@@ -167,9 +165,7 @@ end
 patch '/accounts/:id/?' do
   content_type 'application/vnd.api+json'
 
-  request.body.rewind 
-  body = JSON.parse request.body.read
-  data = body['data']
+  data = @json_body['data']
   attributes = data['attributes']
 
 
@@ -231,9 +227,7 @@ patch '/accounts/current/changePassword/?' do
   ###
   # Validate body
   ###
-  request.body.rewind 
-  body = JSON.parse request.body.read
-  data = body['data']
+  data = @json_body['data']
   attributes = data['attributes']
 
   validate_json_api_content_type(request)
