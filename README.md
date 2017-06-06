@@ -6,7 +6,7 @@ Add the following snippet to your `docker-compose.yml` to include the registrati
 
 ```
 registration:
-  image: semtech/mu-registration-service:2.4.0
+  image: semtech/mu-registration-service:2.6.0
   links:
     - database:database
 ```
