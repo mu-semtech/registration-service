@@ -6,7 +6,7 @@ Registration microservice running on [mu.semte.ch](http://mu.semte.ch).
 
 Add the following snippet to your `docker-compose.yml` to include the registration service in your project.
 
-```
+```yaml
 registration:
   image: semtech/mu-registration-service:2.6.0
   links:
@@ -17,7 +17,7 @@ The triple store used in the backend is linked to the registration service conta
 
 Next, add the following rules to the `dispatcher.ex` to dispatch requests to the registration service. E.g.
 
-```
+```elixir
   match "/accounts/*path", @any do
     Proxy.forward conn, path, "http://registration/accounts/"
   end
@@ -30,7 +30,7 @@ More information how to setup a mu.semte.ch project can be found in [mu-project]
 ### Generate a new user/account
 The registration service provides an interactive script to generate a new user and account using [mu-cli](https://github.com/mu-semtech/mu-cli). Execute the following command, enter the required information and insert the generated data in the triplestore.
 
-```
+```bash
 mu script registration generate-account
 ```
 
