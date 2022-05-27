@@ -39,14 +39,14 @@ post '/accounts/?' do
 
   session_uri = session_id_header(request)
   error('Session header is missing') if session_uri.nil?
-  
+
   rewrite_url = rewrite_url_header(request)
   error('X-Rewrite-URL header is missing') if rewrite_url.nil?
 
   validate_resource_type('accounts', data)
 
   error('Nickname might not be blank') if attributes['nickname'].nil? or attributes['nickname'].empty?
-  
+
   result = select_account_by_nickname(attributes['nickname'])
   error('Nickname already exists') if not result.empty?
 
@@ -71,12 +71,12 @@ post '/accounts/?' do
   create_user_and_account(user_id, attributes['name'], account_id, attributes['nickname'], hashed_password, account_salt)
 
 
-  if settings.auto_login_on_registration 
+  if settings.auto_login_on_registration
     ###
     # Remove old sessions
     ###
     remove_old_sessions(session_uri)
-  
+
     ###
     # Insert new session for new account
     ###
@@ -123,7 +123,7 @@ delete '/accounts/current/?' do
 
   ###
   # Get account
-  ### 
+  ###
 
   result = select_account_id_by_session(session_uri)
   error('Invalid session') if result.empty?
@@ -139,13 +139,13 @@ end
 # DELETE /accounts/:id
 #
 # This function will be typically used by a system administrator
-# 
+#
 # Returns 204 on successful unregistration
 #         404 if account with given id doesn't exist
 ###
 delete '/accounts/:id/?' do
   content_type 'application/vnd.api+json'
-  
+
   delete_account(params['id'])
 end
 
@@ -181,7 +181,7 @@ patch '/accounts/:id/?' do
   account = result.first
 
   unless attributes['nickname'].nil?
-    result = select_account_by_nickname(attributes['nickname']) 
+    result = select_account_by_nickname(attributes['nickname'])
     error('Nickname already exists') if not result.empty? and result.first[:uri] != account[:uri]
   end
 
@@ -223,7 +223,7 @@ patch '/accounts/current/changePassword/?' do
   session_uri = session_id_header(request)
   error('Session header is missing') if session_uri.nil?
 
-  
+
   ###
   # Validate body
   ###
@@ -235,10 +235,10 @@ patch '/accounts/current/changePassword/?' do
 
   error('Password might not be blank') if attributes['new-password'].nil? or attributes['new-password'].empty?
   error('Password and password confirmation do not match') if attributes['new-password'] != attributes['new-password-confirmation']
-  
+
   ###
   # Get account
-  ### 
+  ###
 
   result = select_account_id_by_session(session_uri)
   error('Invalid session') if result.empty?
@@ -248,14 +248,14 @@ patch '/accounts/current/changePassword/?' do
   error("No active account found with id #{account_id}", 404) if result.empty?
   account = result.first
 
-  
+
   ###
   # Validate old password
   ###
 
   result = select_salted_password_and_salt(account[:uri])
   error("No password and salt found for account #{account[:uri]}.") if result.empty?
- 
+
   password_and_salt = result.first
   db_password = BCrypt::Password.new password_and_salt[:password].to_s
   password = attributes['old-password'] + settings.salt + password_and_salt[:salt].to_s
@@ -268,10 +268,10 @@ patch '/accounts/current/changePassword/?' do
   account_salt = SecureRandom.hex
   hashed_password = BCrypt::Password.create attributes['new-password'] + settings.salt + account_salt
   update_password(account[:uri], hashed_password, account_salt)
-  
+
 
   status 204
-  
+
 end
 
 ###
