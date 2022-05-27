@@ -70,7 +70,7 @@ INSERT DATA {
 }
 )
 
-timestamp = DateTime.now.strftime("%Y%m%d%H%M%L")
+timestamp = DateTime.now.strftime("%Y%m%d%H%M%S")
 filename = "#{timestamp}-create-user-#{account_name.gsub(/\s|\./, "-")}.sparql"
 puts
 puts "Copy the following contents to ./config/migrations/#{filename}"
