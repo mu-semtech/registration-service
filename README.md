@@ -27,6 +27,13 @@ The host `registration` in the forward URL reflects the name of the registration
 
 More information how to setup a mu.semte.ch project can be found in [mu-project](https://github.com/mu-semtech/mu-project).
 
+### Generate a new user/account
+The registration service provides an interactive script to generate a new user and account using [mu-cli](https://github.com/mu-semtech/mu-cli). Execute the following command, enter the required information and insert the generated data in the triplestore.
+
+```
+mu script registration generate-account
+```
+
 ## Reference
 ### Configuration
 The following enviroment variables can be set on the registration service:

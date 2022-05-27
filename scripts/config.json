@@ -1,0 +1,17 @@
+{
+  "version": "0.1",
+  "scripts": [
+    {
+      "documentation": {
+        "command": "generate-account",
+        "description": "Interactively generates a migration for a new user/account",
+        "arguments": []
+      },
+      "environment": {
+        "image": "semtech/mu-registration-service",
+        "interactive": true,
+        "script": "generate-account/run.sh"
+      }
+    }
+  ]
+}
