@@ -64,8 +64,8 @@ INSERT DATA {
                    account:password """#{hashed_password}""" ;
                    account:salt "#{account_salt}" ;
                    account:status <http://mu.semte.ch/vocabularies/account/status/active> ;
-                   dcterms:created "#{now}"^^xsd:datetime ;
-                   dcterms:modified "#{now}"^^xsd:datetime .
+                   dcterms:created "#{now}"^^xsd:dateTime ;
+                   dcterms:modified "#{now}"^^xsd:dateTime .
     }
 }
 )
