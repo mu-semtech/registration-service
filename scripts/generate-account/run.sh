@@ -56,8 +56,8 @@ INSERT DATA {
                    foaf:name "#{person_name}" ;
                    foaf:account accounts:#{account_uuid} ;
                    mu:uuid "#{person_uuid}" ;
-                   dcterms:created "#{now}"^^xsd:datetime ;
-                   dcterms:modified "#{now}"^^xsd:datetime .
+                   dcterms:created "#{now}"^^xsd:dateTime ;
+                   dcterms:modified "#{now}"^^xsd:dateTime .
      accounts:#{account_uuid} a foaf:OnlineAccount ;
                    foaf:accountName "#{account_name}" ;
                    mu:uuid "#{account_uuid}" ;
