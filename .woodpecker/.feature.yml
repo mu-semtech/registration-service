@@ -1,0 +1,12 @@
+pipeline:
+  build-and-push:
+    image: plugins/docker
+    secrets: [ docker_username, docker_password ]
+    settings:
+      repo: "${CI_REPO_OWNER##mu-}/mu-${CI_REPO_NAME}"
+      tags: "feature-${CI_COMMIT_BRANCH##feature/}"
+    when:
+      event:
+        - push
+branches:
+  - feature/*
