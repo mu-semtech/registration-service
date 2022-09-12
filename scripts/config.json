@@ -8,7 +8,7 @@
         "arguments": []
       },
       "environment": {
-        "image": "semtech/mu-registration-service:2.7.1",
+        "image": "semtech/mu-registration-service:2.7.2",
         "interactive": true,
         "script": "generate-account/run.sh"
       }

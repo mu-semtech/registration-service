@@ -8,7 +8,7 @@ Add the following snippet to your `docker-compose.yml` to include the registrati
 
 ```yaml
 registration:
-  image: semtech/mu-registration-service:2.7.1
+  image: semtech/mu-registration-service:2.7.2
   links:
     - database:database
 ```
