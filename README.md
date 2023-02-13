@@ -1,7 +1,7 @@
 # Registration microservice
 Registration microservice running on [mu.semte.ch](http://mu.semte.ch).
 
-## Tutorials
+## How-To
 ### Add the registration service to a stack
 
 Add the following snippet to your `docker-compose.yml` to include the registration service in your project.
@@ -33,6 +33,9 @@ The registration service provides an interactive script to generate a new user a
 ```bash
 mu script registration generate-account
 ```
+
+## Tutorials
+A tutorial using this repository can be found at https://github.com/mu-semtech/mu-project#adding-authentication-to-your-mu-project
 
 ## Reference
 ### Configuration
