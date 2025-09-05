@@ -4,7 +4,7 @@ require_relative 'registration_service/helpers.rb'
 require_relative 'registration_service/sparql_queries.rb'
 
 configure do
-  set :salt, ENV['MU_APPLICATION_SALT']
+  set :salt, ENV['MU_APPLICATION_SALT'] || ''
   set :auto_login_on_registration, ENV['MU_AUTO_LOGIN_ON_REGISTRATION'] == 'true'
 end
 
@@ -222,7 +222,6 @@ patch '/accounts/current/changePassword/?' do
 
   session_uri = session_id_header(request)
   error('Session header is missing') if session_uri.nil?
-
 
   ###
   # Validate body
