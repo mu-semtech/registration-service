@@ -12,6 +12,7 @@ puts ""
 
 options = {
   base_uri: "http://ext.data.gift",
+  graph: "http://mu.semte.ch/graphs/users",
   salt: ""
 }
 OptionParser.new do |opts|
@@ -27,6 +28,10 @@ OptionParser.new do |opts|
 
   opts.on("-p", "--password PASSWORD", "Password") do |password|
     options[:password] = password
+  end
+
+  opts.on("--graph GRAPH", "Graph to insert the resources in (default: http://mu.semte.ch/graphs/users)") do |graph|
+    options[:graph] = graph
   end
 
   opts.on("--base-uri BASE_URI", "Base URI for resources (default: http://ext.data.gift)") do |base_uri|
@@ -62,7 +67,7 @@ PREFIX account: <http://mu.semte.ch/vocabularies/account/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 INSERT DATA {
-   GRAPH <http://mu.semte.ch/graphs/users> {
+   GRAPH <#{options[:graph]}> {
      people:#{person_uuid} a foaf:Person ;
                    foaf:name "#{options[:name]}" ;
                    foaf:account accounts:#{account_uuid} ;
