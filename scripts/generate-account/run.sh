@@ -23,7 +23,7 @@ OptionParser.new do |opts|
   end
 
   opts.on("-a", "--account ACCOUNT", "Account name") do |account|
-    options[:account] = account
+    options[:account] = account&.downcase
   end
 
   opts.on("-p", "--password PASSWORD", "Password") do |password|
