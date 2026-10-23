@@ -1,1 +1,1 @@
-gem 'bcrypt', '~> 3.1.10'
+gem 'bcrypt', '~> 3.1.22'
