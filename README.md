@@ -45,6 +45,7 @@ The following enviroment variables can be set on the registration service:
 - **SESSIONS_GRAPH** : graph in which the session resources will be stored. E.g. `http://mu.semte.ch/graphs/sessions`. Defaults to `http://mu.semte.ch/application`.
 - **MU_APPLICATION_SALT** : strengthen the password hashing by configuring an application wide salt. This salt will be concatenated with a salt generated per user to hash the user passwords. By default the application wide salt is not set. If you configure this salt, make sure to configure the [login microservice](https://github.com/mu-semtech/login-service) with the same salt. Setting the salt makes account resources non-shareable with stacks containing a login-service configured with another salt.
 - **MU_AUTO_LOGIN_ON_REGISTRATION**: whether a new user should automatically be logged in after a succesful registration request  (default: `false`).
+- **DEFAULT_MU_AUTH_SCOPE**: URI identifying the service scope sent in the `mu-auth-scope` header (defaults to `http://services.semantic.works/registration-service`). Allows the service to execute SPARQL queries with scoped access permissions instead of bypassing authorization (`mu-auth-sudo`).
 
 ### Model
 This section describes the minimal required model for the login service. These models can be enriched with additional properties and/or relations.

@@ -66,8 +66,8 @@ post '/accounts/?' do
   # Create user and account
   ###
 
-  user_id = generate_uuid()
-  account_id = generate_uuid()
+  user_id = Mu::generate_uuid()
+  account_id = Mu::generate_uuid()
   create_user_and_account(user_id, attributes['name'], account_id, attributes['nickname'], hashed_password, account_salt)
 
 
@@ -80,10 +80,10 @@ post '/accounts/?' do
     ###
     # Insert new session for new account
     ###
-    session_id = generate_uuid()
+    session_id = Mu::generate_uuid()
     account_uri = create_account_uri(account_id)
     insert_new_session_for_account(account_uri, session_uri, session_id)
-    update_modified(session_uri)
+    Mu::update_modified(session_uri)
   end
 
   status 201

@@ -27,7 +27,7 @@ module RegistrationService
       query += "                      <#{RDF::Vocab::DC.modified}> #{now.sparql_escape} ."
       query += "   }"
       query += " }"
-      Mu::update(query, sudo: true)
+      Mu::update(query)
     end
 
     def remove_old_sessions(session)
@@ -40,7 +40,7 @@ module RegistrationService
       query += "   <#{session}> <#{MU_SESSION.account}> ?account ;"
       query += "                <#{MU_CORE.uuid}> ?id . "
       query += " }"
-      Mu::update(query, sudo: true)
+      Mu::update(query)
     end
 
     def select_account_by_nickname(nickname)
@@ -48,7 +48,7 @@ module RegistrationService
       query += "   ?uri a <#{RDF::Vocab::FOAF.OnlineAccount}> ;"
       query += "          <#{RDF::Vocab::FOAF.accountName}> #{nickname.downcase.sparql_escape} . "
       query += " }"
-      Mu::query(query, sudo: true)
+      Mu::query(query)
     end
 
     def select_account_by_id(id, filter_active = true)
@@ -57,7 +57,7 @@ module RegistrationService
       query += "          <#{MU_ACCOUNT.status}> <#{MU_ACCOUNT['status/active']}> ;" if filter_active
       query += "          <#{MU_CORE.uuid}> #{id.sparql_escape} . "
       query += " }"
-      Mu::query(query, sudo: true)
+      Mu::query(query)
     end
 
     def select_account_id_by_session(session)
@@ -70,7 +70,7 @@ module RegistrationService
       query += "              <#{MU_CORE.uuid}> ?id . "
       query += "   }"
       query += " }"
-      Mu::query(query, sudo: true)
+      Mu::query(query)
     end
 
     def select_salted_password_and_salt(account_uri)
@@ -79,7 +79,7 @@ module RegistrationService
       query += "        <#{MU_ACCOUNT.password}> ?password ; "
       query += "        <#{MU_ACCOUNT.salt}> ?salt . "
       query += " }"
-      Mu::query(query, sudo: true)
+      Mu::query(query)
     end
 
     def insert_new_session_for_account(account, session_uri, session_id)
@@ -89,7 +89,7 @@ module RegistrationService
       query += "                      <#{MU_CORE.uuid}> #{session_id.sparql_escape} ."
       query += "   }"
       query += " }"
-      Mu::update(query, sudo: true)
+      Mu::update(query)
     end
 
     def update_account(account_uri, hashed_password, account_salt, nickname)
@@ -117,7 +117,7 @@ module RegistrationService
       end
       query += "                    <#{RDF::Vocab::DC.modified}> ?modified ."
       query += " }"
-      Mu::update(query, sudo: true)
+      Mu::update(query)
 
       # Insert new password and salt
       now = DateTime.now
@@ -134,7 +134,7 @@ module RegistrationService
       query += "                      <#{RDF::Vocab::DC.modified}> #{now.sparql_escape} ."
       query += "   }"
       query += " }"
-      Mu::update(query, sudo: true)
+      Mu::update(query)
     end
 
     def update_password(account_uri, hashed_password, account_salt)
@@ -152,7 +152,7 @@ module RegistrationService
       query += "   <#{account_uri}> <#{MU_ACCOUNT.status}> ?status ;"
       query += "                    <#{RDF::Vocab::DC.modified}> ?modified ."
       query += " }"
-      Mu::update(query, sudo: true)
+      Mu::update(query)
 
       # Insert new status
       now = DateTime.now
@@ -162,7 +162,7 @@ module RegistrationService
       query += "                      <#{RDF::Vocab::DC.modified}> #{now.sparql_escape} ."
       query += "   }"
       query += " }"
-      Mu::update(query, sudo: true)
+      Mu::update(query)
     end
 
   end
